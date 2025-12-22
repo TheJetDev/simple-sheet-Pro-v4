@@ -5,13 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Simple Sheet PRO</title> 
     
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SimpleCalc">
+    
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlNpbXBsZSBTaGVldCBQUk8iLAogICJzaG9ydF9uYW1lIjogIlNpbXBsZVNoZWV0IiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmMGYyZjUiLAogICJ0aGVtZV9jb2xvciI6ICIjMDA3YmZmIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS81MTIvMjkwNy8yOTA3OTE0LnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIgogICAgfQogIF0KfQ==">
+
     <style>
         body { font-family: sans-serif; padding: 8px; background-color: #f0f2f5; margin: 0; box-sizing: border-box; font-size: 16px; -webkit-text-size-adjust: 100%; }
         * { box-sizing: border-box; }
         .app-grid { display: flex; gap: 12px; max-width: 1400px; margin: 0 auto; }
         .calculator-container { flex: 3; min-width: 0; background-color: #fff; padding: 12px; border-radius: 10px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1); width: 100%; }
         
-        /* 元の数字（赤枠）：スマホでも必ず横並び */
+        /* トップのコントロール */
+        .top-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+        .master-name-group { flex: 1; display: flex; align-items: center; border: 2px solid #007bff; border-radius: 6px; padding: 4px 10px; background-color: #fff; min-width: 150px; }
+        .master-name-input { flex-grow: 1; border: none; font-size: 1em; outline: none; font-weight: bold; width: 100%; }
+        
+        /* 言語切り替え：ボタンが多くても折り返すように設定 */
+        .lang-switch { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; flex: 1; }
+
+        /* 元の数字（赤枠）：強制横並び */
         .master-row { 
             padding: 12px; 
             margin-bottom: 12px; 
@@ -19,35 +33,27 @@
             border-radius: 10px; 
             background-color: #fff; 
             display: flex; 
-            flex-direction: row; /* 強制横並び */
+            flex-direction: row; 
             align-items: center; 
             justify-content: space-between; 
             gap: 10px; 
         }
         .master-label-start { font-weight: bold; color: #dc3545; font-size: 1.1em; flex: 1; white-space: nowrap; }
-        .master-input { width: 50%; max-width: 180px; padding: 8px; border: 2px solid #dc3545; border-radius: 6px; font-size: 1.5em; text-align: right; font-weight: bold; }
+        .master-input { width: 45%; max-width: 180px; padding: 8px; border: 2px solid #dc3545; border-radius: 6px; font-size: 1.5em; text-align: right; font-weight: bold; }
 
         /* 計算行 */
         .row { display: flex; align-items: center; margin-bottom: 8px; padding: 10px; border: 1px solid #ccc; border-radius: 10px; background-color: #fff; gap: 6px; flex-wrap: nowrap; }
         .text-label-input { flex: 1; min-width: 0; padding: 8px; border: 1px solid #bbb; border-radius: 6px; font-size: 1em; font-weight: bold; }
-        
-        /* 演算子（黒枠） */
         .operator-group { display: flex; flex-direction: column; align-items: center; width: 22px; flex-shrink: 0; }
         .operator-control { font-size: 0.5em; background: #333; color: #fff; width: 100%; height: 16px; display: flex; justify-content: center; align-items: center; border-radius: 3px; cursor: pointer; }
         .operator-display { font-size: 1.4em; font-weight: bold; text-align: center; color: #000; width: 100%; height: 28px; line-height: 28px; }
-
-        /* 入力数値（青枠）：赤枠の入力欄と幅をバランス調整 */
         .multiplier-input { width: 30%; min-width: 90px; padding: 10px 4px; border: 3px solid #007bff; border-radius: 6px; text-align: right; font-weight: bold; font-size: 1.3em; flex-shrink: 0; }
-        
         .percent-toggle, .base-toggle { border: 2px solid #ccc; border-radius: 6px; width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-weight: bold; background: #fff; flex-shrink: 0; font-size: 1.1em; }
         .percent-toggle.active { background: #dc3545; color: #fff; border-color: #dc3545; }
-        
-        /* 計算結果 */
         .result-group { flex: 1.2; display: flex; align-items: center; justify-content: flex-end; gap: 4px; min-width: 120px; background: #f8f9fa; padding: 4px 8px; border-radius: 6px; border: 1px inset #eee; }
         .result-text { font-size: 1.5em; font-weight: bold; color: #007bff; white-space: nowrap; }
         .action-btn { border: none; background: none; cursor: pointer; font-size: 1.4em; padding: 0 2px; opacity: 0.7; }
 
-        /* モバイル対応：計算行の中身だけ調整 */
         @media screen and (max-width: 600px) {
             .row { flex-wrap: wrap; padding: 8px; }
             .text-label-input { flex: 1 1 100%; margin-bottom: 6px; } 
@@ -55,21 +61,10 @@
             .multiplier-input { order: 2; flex: 1; width: auto; } 
             .percent-toggle, .base-toggle { order: 3; }
             .result-group { order: 4; flex: 1 1 100%; margin-top: 6px; justify-content: space-between; padding: 8px 12px; }
-            
-            /* 赤枠はモバイルでも強制横並びを維持 */
             .master-row { flex-direction: row !important; }
-            .master-input { width: 55%; }
+            .master-input { width: 50%; }
         }
 
-        /* 以下、電卓・共通UI（前回と同様） */
-        .top-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
-        .master-name-group { flex: 1; display: flex; align-items: center; border: 2px solid #007bff; border-radius: 6px; padding: 4px 10px; background-color: #fff; min-width: 160px; }
-        .master-name-input { flex-grow: 1; border: none; font-size: 1em; outline: none; font-weight: bold; width: 100%; }
-        .lang-button { background: #e9ecef; border: 1px solid #ccc; padding: 5px 6px; cursor: pointer; border-radius: 5px; font-size: 0.7em; min-width: 38px; font-weight: bold; }
-        .lang-button.active { background-color: #007bff; color: white; }
-        .util-btn { border: none; background: #6c757d; color: white; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; }
-        .mode-button { flex: 1; padding: 12px; border: none; background: #ddd; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.95em; }
-        .mode-button.active { background-color: #007bff; color: white; }
         .side-calc { flex: 1; min-width: 280px; background: #333; padding: 12px; border-radius: 10px; color: white; height: fit-content; position: sticky; top: 8px; }
         .calc-display { width: 100%; height: 52px; background: #222; border: none; color: #fff; text-align: right; font-size: 1.8em; padding: 8px; border-radius: 6px; margin-bottom: 8px; }
         .calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
@@ -82,6 +77,12 @@
             .side-calc.active { display: block; }
             .calc-toggle-btn { display: block; position: fixed; bottom: 15px; right: 15px; width: 60px; height: 60px; border-radius: 50%; background: #333; color: white; border: none; font-size: 28px; z-index: 1001; }
         }
+
+        .lang-button { background: #e9ecef; border: 1px solid #ccc; padding: 5px 6px; cursor: pointer; border-radius: 5px; font-size: 0.75em; min-width: 40px; font-weight: bold; }
+        .lang-button.active { background-color: #007bff; color: white; }
+        .util-btn { border: none; background: #6c757d; color: white; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; }
+        .mode-button { flex: 1; padding: 12px; border: none; background: #ddd; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.95em; }
+        .mode-button.active { background-color: #007bff; color: white; }
         #saveMessage { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 20px; border-radius: 25px; opacity: 0; transition: opacity 0.3s; z-index: 2000; pointer-events: none; font-size: 0.9em; }
     </style>
 </head>
@@ -124,7 +125,7 @@
 
             <div style="text-align: center; margin-bottom: 12px; display: flex; gap: 6px; justify-content: center;">
                 <select id="presetSelector" onchange="loadPreset()" style="padding: 10px; border-radius: 6px; border: 2px solid #ccc; width: 65%; font-size: 1em; font-weight: bold;"></select>
-                <button class="lang-button" id="savePresetBtn" onclick="savePreset()" style="width:auto; padding:0 15px; font-weight: bold; font-size: 0.9em;">Save</button>
+                <button class="lang-button" id="savePresetBtn" onclick="savePreset()" style="width:auto; padding:0 15px; font-weight: bold; font-size: 1em;">Save</button>
             </div>
 
             <div id="smart-sheet-mode">
@@ -185,7 +186,11 @@
     </div>
 
     <script>
-        // ロジック部分は省略せず全て保持
+        // PWA 対応
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsIGZ1bmN0aW9uKGV2ZW50KSB7IH0pOw==');
+        }
+
         let currentCalc = "0";
         function calcInput(v) { if(currentCalc === "0" && !isNaN(v)) currentCalc = v; else currentCalc += v; document.getElementById('calcDisplay').value = currentCalc; }
         function calcClear() { currentCalc = "0"; document.getElementById('calcDisplay').value = currentCalc; }
