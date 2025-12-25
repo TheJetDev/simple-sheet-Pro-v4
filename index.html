@@ -4,18 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Simple Sheet PRO</title> 
+    
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
     
+    <link rel="icon" href="favicon-96x96.png" sizes="96x96" type="image/png">
+    <link rel="icon" href="web-app-manifest-192x192.png" sizes="192x192" type="image/png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#4db8ff">
+
     <style>
+        /* スタイル部分は変更なしのため維持 */
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 8px; background-color: #f0f2f5; margin: 0; box-sizing: border-box; font-size: 16px; -webkit-text-size-adjust: 100%; color: #000; }
         * { box-sizing: border-box; }
         .app-grid { display: flex; gap: 12px; max-width: 1400px; margin: 0 auto; }
         .calculator-container { flex: 3; min-width: 0; background-color: #fff; padding: 12px; border-radius: 10px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1); width: 100%; }
-        
         .row { display: flex; margin-bottom: 12px; padding: 12px; border: 1px solid #ccc; border-radius: 10px; background-color: #fff; gap: 8px; }
-
         @media screen and (max-width: 800px) {
             .row { flex-direction: column !important; align-items: stretch !important; }
             .text-label-input { width: 100% !important; font-size: 1.1em; padding: 10px; margin-bottom: 5px; }
@@ -23,7 +28,6 @@
             .result-area { width: 100% !important; justify-content: space-between !important; background: #eefbff; padding: 12px; border-radius: 8px; }
             .result-text { font-size: 2.2em; }
         }
-
         @media screen and (min-width: 801px) {
             .row { flex-direction: row; align-items: center; justify-content: space-between; }
             .text-label-input { flex: 1.5; }
@@ -31,12 +35,10 @@
             .result-area { flex: 2; justify-content: flex-end; background: #f8f9fa; padding: 5px 10px; border-radius: 6px; }
             .result-text { font-size: 1.6em; }
         }
-
         .text-label-input { padding: 8px; border: 2px solid #000; border-radius: 6px; font-weight: bold; color: #000; }
         .calc-area { display: flex; align-items: center; gap: 8px; }
         .multiplier-input { width: 110px; font-size: 1.5em; padding: 8px; text-align: right; border: 3px solid #007bff; border-radius: 6px; font-weight: bold; color: #000; }
         .result-text { font-weight: bold; color: #007bff; }
-        
         .operator-group { display: flex; flex-direction: column; align-items: center; width: 32px; }
         .operator-control { font-size: 0.7em; background: #333; color: #fff; width: 100%; height: 20px; display: flex; justify-content: center; align-items: center; border-radius: 3px; cursor: pointer; }
         .operator-display { font-size: 1.6em; font-weight: bold; text-align: center; color: #000; height: 35px; line-height: 35px; width: 100%; }
@@ -44,25 +46,18 @@
         .percent-toggle.active { background: #dc3545; color: #fff; border-color: #dc3545; }
         .base-toggle.chain { background: #007bff; color: #fff; border-color: #007bff; }
         .action-btn { border: none; background: none; cursor: pointer; font-size: 1.8em; opacity: 0.7; }
-
         .master-row { padding: 12px; margin-bottom: 12px; border: 3px solid #dc3545; border-radius: 10px; background-color: #fff; display: flex; align-items: center; justify-content: space-between; }
         .master-input { width: 45%; padding: 8px; border: 2px solid #dc3545; border-radius: 6px; font-size: 1.5em; text-align: right; font-weight: bold; color: #000; }
-        
-        /* 記憶バーのレイアウト調整 */
         .storage-bar { background: #dee2e6; border: 2px solid #666; border-radius: 10px; padding: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
         .storage-controls { display: flex; align-items: center; gap: 10px; }
         .save-btn-main { background: #e67e22; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; white-space: nowrap; }
         .edit-toggle-btn { background: #6c757d; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8em; }
         .edit-toggle-btn.active { background: #dc3545; }
-        
         .save-list-container { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0; min-height: 45px; }
         .save-chip { background: #fff; border: 2px solid #007bff; color: #000; padding: 6px 14px; border-radius: 20px; font-size: 0.85em; font-weight: bold; white-space: nowrap; display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
         .save-chip .del-icon { display: none; color: #dc3545; font-size: 1.3em; }
-        
-        /* 編集モード時のスタイル */
         .editing .save-chip { border-style: dashed; opacity: 0.8; }
         .editing .save-chip .del-icon { display: inline; }
-
         .side-calc { flex: 1; min-width: 280px; background: #333; padding: 12px; border-radius: 10px; color: white; height: fit-content; position: sticky; top: 8px; }
         .calc-display { width: 100%; height: 52px; background: #222; color: #fff; text-align: right; font-size: 1.8em; padding: 8px; border-radius: 6px; margin-bottom: 8px; border:none; }
         .calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
@@ -70,11 +65,9 @@
         .calc-btn.op { background: #f39c12; }
         .calc-btn.equal { background: #27ae60; grid-column: span 2; }
         .calc-btn.clear { background: #c0392b; }
-        
         .mode-button { flex: 1; padding: 12px 8px; border: none; background: #ddd; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; flex-direction: column; align-items: center; min-height: 85px; color: #000; }
         .mode-button.active { background-color: #007bff; color: white; }
         .mode-desc { font-size: 0.7em; margin-top: 6px; opacity: 0.9; font-weight: normal; line-height: 1.3; text-align: center; }
-
         .util-btn { border: none; background: #6c757d; color: white; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; }
         #saveMessage { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); background: #000; color: #fff; padding: 10px 20px; border-radius: 25px; opacity: 0; transition: opacity 0.3s; z-index: 2000; pointer-events: none; font-weight: bold; }
         @media screen and (max-width: 900px) {
@@ -183,17 +176,25 @@
     </div>
 
     <script>
-        // すべての言語の丁寧な説明文を保持
+        // サービスワーカーの登録（追加）
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW registered'))
+                    .catch(err => console.log('SW error', err));
+            });
+        }
+
         const languageMap = {
             en: { title: "Simple Sheet PRO", modeBase: "From Base", descBase: "Fixed: Every row refers to the top value", modePrev: "Flow", descPrev: "Evaluated from top to bottom. Choose 🏠 or 🔗 for each row.", masterLabelName: "Name:", masterLabelStart: "Base Value", copyMsg: "Copied!", btnClear: "Clear", btnExport: "Exp", btnImport: "Imp", btnReset: "Reset", confirmReset: "Reset all?", addRow: "+ Row", copyAll: "Copy All", calcTitle: "Calculator", btnSave: "Save", msgSave: "Saved!", msgLoad: "Loaded!", confirmDel: "Delete this memory?" },
             ja: { title: "シンプルシート PRO", modeBase: "元の値から", descBase: "固定参照：すべての行が一番上の数値を参照します", modePrev: "フロー計算", descPrev: "上から順に計算。各行で 🏠 または 🔗 を選択可能。", masterLabelName: "計算名:", masterLabelStart: "元の数字", copyMsg: "コピー完了", btnClear: "クリア", btnExport: "出力", btnImport: "読込", btnReset: "初期化", confirmReset: "全削除しますか？", addRow: "+ 行追加", copyAll: "全コピー", calcTitle: "電卓", btnSave: "記憶する", msgSave: "記憶しました", msgLoad: "読み込みました", confirmDel: "この記憶を削除しますか？" },
-            zh: { title: "简单计算表 PRO", modeBase: "来自初始値", descBase: "固定参照：每一行都引用顶部的初始值进行计算", modePrev: "流程模式", descPrev: "自上而下依次计算。每行可选择 🏠 或 🔗 模式。", masterLabelName: "名称:", masterLabelStart: "初始値", copyMsg: "已复制", btnClear: "清除", btnExport: "导出", btnImport: "导入", btnReset: "重置", confirmReset: "确认重置所有数据？", addRow: "+ 添加行", copyAll: "复制全部", calcTitle: "计算器", btnSave: "保存", msgSave: "已保存", msgLoad: "已加载", confirmDel: "删除此记忆？" },
+            zh: { title: "简单计算表 PRO", modeBase: "来自初始値", descBase: "固定参照：每一行都引用顶部的初始值进行计算", modePrev: "流程模式", descPrev: "自上而下依次计算。每行可选择 🏠 或 🔗 模式。", masterLabelName: "名称:", masterLabelStart: "初始値", copyMsg: "已复制", btnClear: "清除", btnExport: "导出", btnImport: "导入", btnReset: "重置", confirmReset: "确认重置所有数据？", addRow: "+ 添加行", copyAll: "复制全部", calcTitle: "计算器", btnSave: "保存", msgSave: "已保存", msgLoad: "已加载", confirmDel: "删除此記憶？" },
             ko: { title: "심플 시트 PRO", modeBase: "기준값에서", descBase: "고정 참조: 모든 행이 최상단의 기준값을 참조하여 계산합니다", modePrev: "플로우 모드", descPrev: "위에서 아래로 순차적 계산. 각 행에서 🏠 또는 🔗 선택 가능.", masterLabelName: "이름:", masterLabelStart: "기준 숫자", copyMsg: "복사됨", btnClear: "지우기", btnExport: "내보내기", btnImport: "가져오기", btnReset: "초기화", confirmReset: "전체 초기화하시겠습니까?", addRow: "+ 행 추가", copyAll: "전체 복사", calcTitle: "계산기", btnSave: "저장", msgSave: "저장됨", msgLoad: "로드됨", confirmDel: "삭제?" },
             es: { title: "Hoja Simple PRO", modeBase: "Desde Base", descBase: "Referencia fija: cada fila se refiere al valor inicial superior", modePrev: "Flujo", descPrev: "Evaluado de arriba a abajo. Elige 🏠 o 🔗 para cada fila.", masterLabelName: "Nombre:", masterLabelStart: "Valor Base", copyMsg: "¡Copiado!", btnClear: "Limpiar", btnExport: "Exportar", btnImport: "Importar", btnReset: "Reiniciar", confirmReset: "¿Reiniciar todo?", addRow: "+ Fila", copyAll: "Copiar todo", calcTitle: "Calculadora", btnSave: "Guardar", msgSave: "¡Guardado!", msgLoad: "¡Cargado!", confirmDel: "Eliminar?" },
             fr: { title: "Feuille Simple PRO", modeBase: "Depuis Base", descBase: "Référence fixe : chaque ligne se réfère à la valeur initiale du haut", modePrev: "Flux", descPrev: "Évalué de haut en bas. Choisissez 🏠 ou 🔗 pour chaque ligne.", masterLabelName: "Nom :", masterLabelStart: "Valeur de base", copyMsg: "Copié !", btnClear: "Effacer", btnExport: "Export", btnImport: "Import", btnReset: "Reset", confirmReset: "Tout réinitialiser ?", addRow: "+ Ligne", copyAll: "Tout copier", calcTitle: "Calculatrice", btnSave: "Enregistrer", msgSave: "Enregistré", msgLoad: "Chargé", confirmDel: "Supprimer?" },
             pt: { title: "Folha Simples PRO", modeBase: "Da Base", descBase: "Referência fixa: cada linha refere-se ao valor inicial no topo", modePrev: "Fluxo", descPrev: "Avaliado de cima para baixo. Escolha 🏠 ou 🔗 para cada linha.", masterLabelName: "Nome:", masterLabelStart: "Valor Base", copyMsg: "Copiado!", btnClear: "Limpar", btnExport: "Exportar", btnImport: "Importar", btnReset: "Reset", confirmReset: "Reiniciar tudo?", addRow: "+ Linha", copyAll: "Copiar tudo", calcTitle: "Calculadora", btnSave: "Salvar", msgSave: "Salvo", msgLoad: "Carregado", confirmDel: "Excluir?" },
             de: { title: "Einfaches Blatt PRO", modeBase: "Vom Basiswert", descBase: "Feste Referenz: Jede Zeile bezieht sich auf den obersten Basiswert", modePrev: "Flow", descPrev: "Berechnung von oben nach unten. Wählen Sie 🏠 oder 🔗 für jede Zeile.", masterLabelName: "Name:", masterLabelStart: "Basiswert", copyMsg: "Kopiert!", btnClear: "Löschen", btnExport: "Export", btnImport: "Import", btnReset: "Reset", confirmReset: "Alles zurücksetzen?", addRow: "+ Zeile", copyAll: "Alles kopieren", calcTitle: "Rechner", btnSave: "Speichern", msgSave: "Gespeichert", msgLoad: "Geladen", confirmDel: "Löschen?" },
-            it: { title: "Foglio Semplice PRO", modeBase: "Dalla Base", descBase: "Riferimento fisso: ogni riga si riferisce al valore iniziale in alto", modePrev: "Flusso", descPrev: "Valutato dall'alto verso il basso. Scegli 🏠 o 🔗 per ogni riga.", masterLabelName: "Nome:", masterLabelStart: "Valore Base", copyMsg: "Copiado!", btnClear: "Cancella", btnExport: "Esporta", btnImport: "Importa", btnReset: "Reset", confirmReset: "Ripristinare tutto?", addRow: "+ Riga", copyAll: "Copia tutto", calcTitle: "Calcolatrice", btnSave: "Salva", msgSave: "Salvato", msgLoad: "Caricato", confirmDel: "Elimina?" }
+            it: { title: "Foglio Semplice PRO", modeBase: "Dalla Base", descBase: "Riferimento fisso: ogni riga si riferisce al valore iniziale in alto", modePrev: "Flusso", descPrev: "Valutato dall'alto verso il basso. Scegli 🏠 o 🔗 per ogni riga.", masterLabelName: "Name:", masterLabelStart: "Valore Base", copyMsg: "Copiado!", btnClear: "Cancella", btnExport: "Esporta", btnImport: "Importa", btnReset: "Reset", confirmReset: "Ripristinare tutto?", addRow: "+ Riga", copyAll: "Copia tutto", calcTitle: "Calcolatrice", btnSave: "Salva", msgSave: "Salvato", msgLoad: "Caricato", confirmDel: "Elimina?" }
         };
 
         let currentLanguage = 'ja'; 
